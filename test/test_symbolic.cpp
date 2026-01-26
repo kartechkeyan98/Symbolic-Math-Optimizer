@@ -30,7 +30,12 @@ int main(void){
     std::cout<<g->toString()<<" = "<<g->evaluate(vars)<<std::endl;
 
     expr r= sin(z*w + f/g);
-
+    std::cout<<r->toString()<<" = "<<r->evaluate(vars)<<std::endl;
     // Visualize
     export_to_dot(r, "./dots/fig1.dot");
+
+    // Differential
+    expr e= r->diff("x");
+    std::cout<<e->toString()<<" = "<<e->evaluate(vars)<<std::endl;
+    export_to_dot(e, "./dots/fig2.dot");
 }
