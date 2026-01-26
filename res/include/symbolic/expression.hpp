@@ -3,6 +3,7 @@
 #include<iostream>
 #include<memory>
 #include<map>
+#include<vector>
 
 namespace symbolic{
 
@@ -18,6 +19,10 @@ public:
     virtual expr diff(const std::string &varname)const = 0;
     virtual std::string toString()const= 0;
     virtual ~Expression()= default;
+
+    // for visuals
+    virtual std::vector<expr> get_children()const{return {};}
+    virtual std::string get_label()const= 0;
 };
 
 

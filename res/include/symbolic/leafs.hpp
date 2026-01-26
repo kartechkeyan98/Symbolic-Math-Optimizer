@@ -22,6 +22,9 @@ public:
         if(s.back()=='.')s.pop_back();
         return s;
     }
+
+    // visuals routines!
+    std::string get_label()const override{return std::to_string(value);}
 };
 class Variable: public Expression{
 private:
@@ -39,6 +42,9 @@ public:
     std::string toString()const override{
         return name;
     }
+
+    // visuals routines!
+    std::string get_label()const override{return name;}
 };
 
 // factory functions for the DSL
