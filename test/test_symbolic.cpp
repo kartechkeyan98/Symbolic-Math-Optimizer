@@ -2,8 +2,10 @@
 
 #include<symbolic/expression.hpp>
 #include<symbolic/leafs.hpp>
-#include<symbolic/basicops.hpp>
-#include<symbolic/mathops.hpp>
+#include<symbolic/math.hpp>
+#include<symbolic/trig.hpp>
+#include<symbolic/visuals.hpp>
+
 
 using namespace symbolic;
 
@@ -27,5 +29,8 @@ int main(void){
     std::cout<<f->toString()<<" = "<<f->evaluate(vars)<<std::endl;
     std::cout<<g->toString()<<" = "<<g->evaluate(vars)<<std::endl;
 
-    // More Complex things
+    expr r= sin(z*w + f/g);
+
+    // Visualize
+    export_to_dot(r, "./dots/fig1.dot");
 }
