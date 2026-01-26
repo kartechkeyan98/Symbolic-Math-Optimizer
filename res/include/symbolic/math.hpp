@@ -173,11 +173,45 @@ public:
 
 
 // Operator overloads for clean syntax (factory functions)
-expr operator+(expr lhs, expr rhs){return std::make_shared<Add>(lhs, rhs);}
-expr operator-(expr lhs, expr rhs){return std::make_shared<Sub>(lhs, rhs);}
-expr operator*(expr lhs, expr rhs){return std::make_shared<Mul>(lhs, rhs);}
-expr operator/(expr lhs, expr rhs){return std::make_shared<Div>(lhs, rhs);}
-expr operator^(expr lhs, expr rhs){return std::make_shared<Pow>(lhs, rhs);}
+expr operator+(expr lhs, expr rhs){
+    if (is_val(lhs, 0.0)) return rhs;
+    else if (is_val(rhs, 0.0)) return lhs;
+    else if (lhs == rhs) return std::make_shared<Mul>(constant(2.), lhs);
+
+    auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
+    auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
+    if (c1 && c2) return constant(c1->item() + c2->item());
+
+    return std::make_shared<Add>(lhs, rhs);
+}
+expr operator-(expr lhs, expr rhs){
+    if (is_val(lhs, 0.0)) return std::make_shared<Mul>(constant(-1.), rhs);
+    else if (is_val(rhs, 0.0)) return lhs;
+    else if (lhs == rhs) return constant(0.0);
+    return std::make_shared<Sub>(lhs, rhs);
+}
+expr operator*(expr lhs, expr rhs){
+    // simple speed ups
+    if(is_val(lhs, 0.)||is_val(rhs,0.)) return constant(0.);
+    else if(is_val(rhs, 1.0)) return lhs;
+    else if(is_val(lhs, 1.0)) return rhs;
+    else if(lhs == rhs) return std::make_shared<Pow>(lhs, constant(2));
+    return std::make_shared<Mul>(lhs, rhs);
+}
+expr operator/(expr lhs, expr rhs){
+    // simple speed ups
+    if(is_val(lhs, 0.)) return constant(0.);
+    else if(is_val(rhs, 1.0)) return lhs;
+    else if (lhs == rhs) return constant(1.0);
+
+    return std::make_shared<Div>(lhs, rhs);
+}
+expr operator^(expr lhs, expr rhs){
+    if(is_val(rhs, 0)) return constant(1.);
+    else if(is_val(lhs, 1)) return constant(1.);
+    else if(is_val(rhs, 1)) return lhs;
+    return std::make_shared<Pow>(lhs, rhs);
+}
 
 
 // Support for double literals! (ex- 2.0 * x, a= 4; a*x)

@@ -60,5 +60,22 @@ expr Variable::diff(const std::string &varname)const{
     return constant(0.0);
 }
 
+template <typename T>
+std::shared_ptr<T> match(expr e) {
+    return std::dynamic_pointer_cast<T>(e);
+}
+
+// --- Helper: Constant Checking ---
+// Returns true if 'e' is a constant with value 'val'
+bool is_val(expr e, double val) {
+    auto c = match<Constant>(e);
+    return c && std::abs(c->item() - val) < 1e-9;
+}
+
+// Returns pointer to Constant if e is one, else nullptr
+std::shared_ptr<Constant> as_const(expr e) {
+    return match<Constant>(e);
+}
+
 
 }
