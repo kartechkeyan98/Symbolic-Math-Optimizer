@@ -180,7 +180,7 @@ double bisection_search(
         L= b-a;
     }
 
-    printf("No.of iteration of bisection_serach(..., %0.2f, %0.2f, ...) = %d\n", a0, b0, n);
+    printf("No.of iteration of bisection_serach(..., %0.2f, %0.2f, ...) = %lld\n", a0, b0, n);
     printf("The minimum occurs at: [%0.5f]\n", (a+b)/2);
     printf("The minimum value is: [%0.5f]\n\n", f((a+b)/2));
     return (a+b)/2; 

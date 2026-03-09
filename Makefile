@@ -10,7 +10,7 @@ ifeq ($(OS),Windows_NT)
     RM_FILE_CMD = del /Q /F
     TARGET_EXT = .exe
     # Command to run the executable in Windows
-    RUN_CMD = $(TARGET)
+    RUN_CMD = ./$(TARGET)
 else
     # Linux/Mac Settings
     RM_FILE_CMD = rm -f
@@ -49,7 +49,7 @@ ifndef FILE
 	$(error Usage: make test FILE=test/your_file.cpp)
 endif
 	@echo "Compiling Test File: $(FILE)..."
-	$(CXX) $(FILE) $(LIB_SRCS_FILES) $(INCLUDE_FLAG) $(LIB_FLAG) -o $(TARGET)
+	$(CXX) $(FILE) $(LIB_SRCS_FILES) $(INCLUDE_FLAG) $(LIB_FLAG) -o $(TARGET) 
 
 # 3. Run Logic
 #    This logic happens inside Make, avoiding OS-specific shell "if" commands.

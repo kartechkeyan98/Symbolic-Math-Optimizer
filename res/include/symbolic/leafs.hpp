@@ -24,7 +24,12 @@ public:
     }
 
     // visuals routines!
-    std::string get_label()const override{return std::to_string(value);}
+    std::string get_label()const override{
+        std::string s= std::to_string(value);
+        s.erase(s.find_last_not_of('0') + 1, std::string::npos);
+        if(s.back()=='.')s.pop_back();
+        return s;
+    }
 };
 class Variable: public Expression{
 private:

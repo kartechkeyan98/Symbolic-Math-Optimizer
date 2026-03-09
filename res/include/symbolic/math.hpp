@@ -174,23 +174,31 @@ public:
 
 // Operator overloads for clean syntax (factory functions)
 expr operator+(expr lhs, expr rhs){
-    if (is_val(lhs, 0.0)) return rhs;
-    else if (is_val(rhs, 0.0)) return lhs;
-    else if (lhs == rhs) return std::make_shared<Mul>(constant(2.), lhs);
-
     auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
     auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
     if (c1 && c2) return constant(c1->item() + c2->item());
 
+    else if (is_val(lhs, 0.0)) return rhs;
+    else if (is_val(rhs, 0.0)) return lhs;
+    else if (lhs == rhs) return std::make_shared<Mul>(constant(2.), lhs);
+
     return std::make_shared<Add>(lhs, rhs);
 }
 expr operator-(expr lhs, expr rhs){
+    auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
+    auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
+    if (c1 && c2) return constant(c1->item() - c2->item());
+
     if (is_val(lhs, 0.0)) return std::make_shared<Mul>(constant(-1.), rhs);
     else if (is_val(rhs, 0.0)) return lhs;
     else if (lhs == rhs) return constant(0.0);
     return std::make_shared<Sub>(lhs, rhs);
 }
 expr operator*(expr lhs, expr rhs){
+    auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
+    auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
+    if (c1 && c2) return constant(c1->item() * c2->item());
+
     // simple speed ups
     if(is_val(lhs, 0.)||is_val(rhs,0.)) return constant(0.);
     else if(is_val(rhs, 1.0)) return lhs;
@@ -199,6 +207,9 @@ expr operator*(expr lhs, expr rhs){
     return std::make_shared<Mul>(lhs, rhs);
 }
 expr operator/(expr lhs, expr rhs){
+    auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
+    auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
+    if (c1 && c2) return constant(c1->item() / c2->item());
     // simple speed ups
     if(is_val(lhs, 0.)) return constant(0.);
     else if(is_val(rhs, 1.0)) return lhs;
@@ -207,6 +218,10 @@ expr operator/(expr lhs, expr rhs){
     return std::make_shared<Div>(lhs, rhs);
 }
 expr operator^(expr lhs, expr rhs){
+    auto c1 = std::dynamic_pointer_cast<Constant>(lhs);
+    auto c2 = std::dynamic_pointer_cast<Constant>(rhs);
+    if (c1 && c2) return constant(std::pow(c1->item(), c2->item()));
+
     if(is_val(rhs, 0)) return constant(1.);
     else if(is_val(lhs, 1)) return constant(1.);
     else if(is_val(rhs, 1)) return lhs;
@@ -265,8 +280,20 @@ expr Pow::diff(const std::string &varname)const {
     expr dv= v->diff(varname);
     
     // optimization: if exponent is constant, the dv = 0
-    if(auto c= std::dynamic_pointer_cast<Constant>(dv)){
-        if(fabs(c->item()) < 1e-8) return v * (u ^ (v - 1.0)) * du;
+    if(auto c= std::dynamic_pointer_cast<Constant>(v)){
+        // d[u^n] = n * u^(n-1) * du
+        double n = c->item();
+        if (std::abs(n) < 1e-8) {
+            return constant(0.0);  // derivative of constant^something? Actually x^0 = 1
+        }
+        return constant(n) * (u ^ constant(n - 1.0)) * du;
+    }
+
+    auto const_deriv = std::dynamic_pointer_cast<Constant>(dv);
+    if (const_deriv && std::abs(const_deriv->item()) < 1e-8) {
+        // dv is zero, but we need the full formula? Actually if dv=0, v is constant wrt varname
+        // So we can use the constant exponent formula
+        return v * (u ^ (v - 1.0)) * du;
     }
 
     expr t1= dv * log(u);
@@ -283,8 +310,8 @@ expr Exp::diff(const std::string &varname)const{
     return exp(arg) * arg->diff(varname);
 }
 expr Sqrt::diff(const std::string & varname)const{
-    // d[sqrt(x)] = dx/sqrt(x)
-    return arg->diff(varname)/std::make_shared<Sqrt>(arg);
+    // d[sqrt(x)] = dx/2*sqrt(x)
+    return arg->diff(varname)/(constant(2.0)*std::make_shared<Sqrt>(arg));
 }
 
 
