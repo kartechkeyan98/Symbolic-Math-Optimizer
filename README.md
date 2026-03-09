@@ -16,3 +16,18 @@ dot -Tpng /path/to/dot -o /path/to/output
 
 This requires you to install the `graphviz` toolkit available for both windows and linux. 
 Link to GraphViz: <a href="https://graphviz.org/download/">Here</a>
+
+Additionally, a makefile has been provided with the library, which is to be used as follows:
+
+1. **Compilation**
+
+```Makefile
+make test FILE=/file/to/compile/
+```
+
+2. **Running**
+
+```Makefile
+make run [FILE=...]
+```
+In case of run, if already compiled, not required to provide `FILE` argument. It is optional, in case provided, it recompiles then runs.
